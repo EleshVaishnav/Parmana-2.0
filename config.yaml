@@ -1,0 +1,357 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                  PARMANA 2.0 — CONFIG                           ║
+# ║  All runtime settings. Secrets live in .env, never here.        ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+app:
+  name: Parmana
+  version: "2.0"
+  env: ${APP_ENV:-development}
+  log_level: ${LOG_LEVEL:-INFO}
+  default_provider: ${DEFAULT_PROVIDER:-openai}
+
+# ── Provider Registry ─────────────────────────────────────────────────────────
+# Each provider entry:
+#   enabled      : bool   — toggle without deleting config
+#   adapter      : str    — which adapter class to load in provider_router.py
+#   base_url     : str    — can reference env vars with ${VAR}
+#   default_model: str    — used when caller doesn't specify a model
+#   timeout      : int    — seconds before request is aborted
+#   max_retries  : int    — automatic retries on transient errors
+#   extra        : dict   — provider-specific knobs
+
+providers:
+
+  # ── Tier 1: First-class SDKs ───────────────────────────────────────────────
+
+  openai:
+    enabled: true
+    adapter: OpenAIAdapter
+    base_url: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+    default_model: gpt-4o
+    timeout: 60
+    max_retries: 3
+    extra:
+      org_id: ${OPENAI_ORG_ID:-}
+
+  anthropic:
+    enabled: true
+    adapter: AnthropicAdapter
+    base_url: ${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
+    default_model: claude-opus-4-5
+    timeout: 90
+    max_retries: 3
+    extra:
+      max_tokens: 8096
+
+  gemini:
+    enabled: true
+    adapter: GeminiAdapter
+    base_url: https://generativelanguage.googleapis.com
+    default_model: gemini-1.5-pro
+    timeout: 60
+    max_retries: 3
+
+  groq:
+    enabled: true
+    adapter: GroqAdapter
+    base_url: https://api.groq.com/openai/v1
+    default_model: llama-3.1-70b-versatile
+    timeout: 30
+    max_retries: 3
+
+  mistral:
+    enabled: true
+    adapter: MistralAdapter
+    base_url: https://api.mistral.ai/v1
+    default_model: mistral-large-latest
+    timeout: 60
+    max_retries: 3
+
+  bedrock:
+    enabled: true
+    adapter: BedrockAdapter
+    base_url: ~                        # boto3 handles endpoint internally
+    default_model: anthropic.claude-3-5-sonnet-20241022-v2:0
+    timeout: 90
+    max_retries: 2
+    extra:
+      region: ${AWS_REGION:-us-east-1}
+
+  # ── Tier 2: OpenAI-compatible (httpx) ─────────────────────────────────────
+
+  openrouter:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+    default_model: meta-llama/llama-3.1-70b-instruct
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: OPENROUTER_API_KEY
+      headers:
+        HTTP-Referer: https://parmana.local
+        X-Title: Parmana
+
+  deepseek:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com/v1}
+    default_model: deepseek-chat
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: DEEPSEEK_API_KEY
+
+  xai:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${XAI_BASE_URL:-https://api.x.ai/v1}
+    default_model: grok-2-latest
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: XAI_API_KEY
+
+  fireworks:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${FIREWORKS_BASE_URL:-https://api.fireworks.ai/inference/v1}
+    default_model: accounts/fireworks/models/llama-v3p1-70b-instruct
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: FIREWORKS_API_KEY
+
+  dashscope:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${DASHSCOPE_BASE_URL:-https://dashscope-intl.aliyuncs.com/compatible-mode/v1}
+    default_model: qwen-plus
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: DASHSCOPE_API_KEY
+
+  byteplus:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${BYTEPLUS_BASE_URL:-https://ark.ap-southeast.bytepluses.com/api/v3}
+    default_model: doubao-pro-32k
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: BYTEPLUS_API_KEY
+
+  moonshot:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${MOONSHOT_BASE_URL:-https://api.moonshot.cn/v1}
+    default_model: moonshot-v1-8k
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: MOONSHOT_API_KEY
+
+  stepfun:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${STEPFUN_BASE_URL:-https://api.stepfun.com/v1}
+    default_model: step-1-8k
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: STEPFUN_API_KEY
+
+  chutes:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${CHUTES_BASE_URL:-https://llm.chutes.ai/v1}
+    default_model: deepseek-ai/DeepSeek-V3-0324
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: CHUTES_API_KEY
+
+  venice:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${VENICE_BASE_URL:-https://api.venice.ai/api/v1}
+    default_model: llama-3.3-70b
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: VENICE_API_KEY
+
+  zai:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${ZAI_BASE_URL:-https://api.z.ai/api/v1}
+    default_model: z1-preview
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: ZAI_API_KEY
+
+  opencode:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${OPENCODE_BASE_URL:-https://api.opencode.ai/v1}
+    default_model: zen-1
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: OPENCODE_API_KEY
+
+  vercel:
+    enabled: true
+    adapter: OpenAICompatAdapter
+    base_url: ${VERCEL_AI_GATEWAY_URL}
+    default_model: gpt-4o
+    timeout: 60
+    max_retries: 3
+    extra:
+      api_key_env: VERCEL_AI_GATEWAY_TOKEN
+
+  cloudflare:
+    enabled: true
+    adapter: CloudflareAdapter          # builds URL from account+gateway IDs
+    base_url: ~
+    default_model: @cf/meta/llama-3.1-8b-instruct
+    timeout: 60
+    max_retries: 3
+
+  minimax:
+    enabled: true
+    adapter: MinimaxAdapter             # custom REST (not OpenAI-compat)
+    base_url: ${MINIMAX_BASE_URL:-https://api.minimax.chat/v1}
+    default_model: abab6.5s-chat
+    timeout: 60
+    max_retries: 3
+
+  zhipuai:
+    enabled: true
+    adapter: ZhipuAdapter
+    base_url: https://open.bigmodel.cn/api/paas/v4
+    default_model: glm-4
+    timeout: 60
+    max_retries: 3
+
+  qianfan:
+    enabled: true
+    adapter: QianfanAdapter
+    base_url: ~                         # qianfan SDK handles endpoint
+    default_model: ERNIE-4.0-8K
+    timeout: 60
+    max_retries: 3
+
+  # ── Tier 3: Local / Media ──────────────────────────────────────────────────
+
+  ollama:
+    enabled: true
+    adapter: OllamaAdapter
+    base_url: ${OLLAMA_BASE_URL:-http://localhost:11434}
+    default_model: ${OLLAMA_DEFAULT_MODEL:-llama3}
+    timeout: 120                        # local models can be slow
+    max_retries: 1
+
+  comfyui:
+    enabled: true
+    adapter: ComfyUIAdapter
+    base_url: ${COMFYUI_BASE_URL:-http://localhost:8188}
+    default_model: ~                    # workflow-based, not model-based
+    timeout: 300
+    max_retries: 1
+
+  fal:
+    enabled: true
+    adapter: FalAdapter
+    base_url: ~                         # fal-client handles routing
+    default_model: fal-ai/flux/schnell
+    timeout: 120
+    max_retries: 2
+
+  runway:
+    enabled: true
+    adapter: RunwayAdapter
+    base_url: https://api.dev.runwayml.com/v1
+    default_model: gen4_turbo
+    timeout: 300
+    max_retries: 2
+
+# ── Routing Rules ─────────────────────────────────────────────────────────────
+# Task-based auto-routing. Agent uses this when provider is not explicitly set.
+routing:
+  code:          openai           # GPT-4o for code tasks
+  reasoning:     anthropic        # Claude for deep reasoning
+  fast:          groq             # Sub-second responses
+  search:        openrouter       # Broad model access
+  image_gen:     fal              # Image generation
+  video_gen:     runway           # Video generation
+  local:         ollama           # Offline / private
+  long_context:  gemini           # 1M token context
+
+# ── Fallback Chain ────────────────────────────────────────────────────────────
+# If primary provider fails, try these in order.
+fallback_chain:
+  - openai
+  - anthropic
+  - groq
+  - openrouter
+  - ollama
+
+# ── Memory ────────────────────────────────────────────────────────────────────
+memory:
+  session:
+    max_messages: 50               # rolling window kept in RAM
+    include_system_prompt: true
+
+  vector:
+    enabled: true
+    persist_dir: ${CHROMA_PERSIST_DIR:-./data/chroma}
+    embedding_model: ${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+    collection_name: parmana_memory
+    top_k: 5                       # results injected per query
+    score_threshold: 0.45          # cosine similarity cutoff
+    chunk_size: 512                # tokens per chunk
+    chunk_overlap: 64
+
+# ── Skills ────────────────────────────────────────────────────────────────────
+skills:
+  web_search:
+    enabled: true
+    backend: duckduckgo
+    max_results: 8
+    timeout: 10
+
+  calculator:
+    enabled: true
+    use_sympy: true                # symbolic math over eval()
+
+# ── Vision ────────────────────────────────────────────────────────────────────
+vision:
+  enabled: true
+  preferred_provider: openai      # provider used for vision tasks
+  preferred_model: gpt-4o
+  ocr_fallback: tesseract         # used when provider has no vision support
+  max_image_size_mb: 20
+
+# ── CLI Channel ───────────────────────────────────────────────────────────────
+cli:
+  stream: true                    # stream tokens as they arrive
+  show_provider: true             # display which provider answered
+  show_tokens: false              # token usage per response
+  prompt_symbol: "▸"
+  theme: dark                     # dark | light
+
+# ── Telegram Channel ──────────────────────────────────────────────────────────
+telegram:
+  enabled: false
+  parse_mode: Markdown
+  stream: false                   # Telegram edits message as tokens arrive
+  allowed_user_ids: []            # empty = allow all
+
+# ── WhatsApp Channel ──────────────────────────────────────────────────────────
+whatsapp:
+  enabled: false
+  webhook_path: /webhook/whatsapp
