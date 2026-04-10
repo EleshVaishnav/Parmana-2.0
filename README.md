@@ -8,12 +8,12 @@
 
 **Linux / Mac**
 ```bash
-curl -sSL https://raw.githubusercontent.com/yourusername/Parmana-2.0/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/EleshVaishnav/Test-claude-parmana.git/main/install.sh | bash
 ```
 
 **Windows (PowerShell)**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/yourusername/Parmana-2.0/main/install.bat -OutFile install.bat; .\install.bat
+iwr -useb https://raw.githubusercontent.com/EleshVaishnav/Test-claude-parmana.git/main/install.bat -OutFile install.bat; .\install.bat
 ```
 
 Then add your API keys to `.env` (created automatically from `.env.example`).
